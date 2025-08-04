@@ -40,7 +40,10 @@ export async function create(view) {
 
     app = new PIXI.Application();
 
+    globalThis.__PIXI_APP__ = app;
+
     await app.init({
+        backgroundColor: 0x1099bb, // Background color
         ...resolution,
         canvas
     });
