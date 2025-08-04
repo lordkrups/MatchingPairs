@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Match Pairs</title>
+
+    <link rel="stylesheet" href="./css/main.css">
+</head>
+
+
+<body>
+    <h1>Match Pairs</h1>
+    <canvas id="canvas"></canvas>
+    <script src="libs/pixi.js"></script>
+    <script src="./libs/gsap.js"></script>
+
+    <script type="module">
+        import * as renderer from './libs/renderer/index.js';
+        // Import the main game logic
+        import * as index from './src/index.js';
+
+        // Set the game up, ready to use
+        await renderer.setup();
+
+        index.init();
+    </script>
+</body>
+</html>
