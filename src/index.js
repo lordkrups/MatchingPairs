@@ -1,4 +1,5 @@
 import { app } from '../libs/renderer/index.js';
+import { loadAssets, getTexture } from '../libs/loader/index.js';
 
 
 /**
@@ -15,18 +16,25 @@ export async function init() {
     graphic.endFill();
     stage.addChild(graphic);
 
-    const img = './assets/face.png'; // Ensure the path is correct
+    // const img = './assets/face.png'; // Ensure the path is correct
 
-    const faceAsset = PIXI.Assets.load(img);
+    // const faceAsset = PIXI.Assets.load(img);
 
-    faceAsset.then((myTexture) => {
-    const sprite = new PIXI.Sprite(myTexture); // Directly use the resolved texture
-    sprite.x = 100;
-    sprite.y = 100;
-    sprite.scale.set(0.5);
+    // faceAsset.then((myTexture) => {
+    // const sprite = new PIXI.Sprite(myTexture); // Directly use the resolved texture
+    // sprite.x = 100;
+    // sprite.y = 100;
+    // sprite.scale.set(0.5);
 
-    app.stage.addChild(sprite);
+    // app.stage.addChild(sprite);
+    // });
+    await loadAssets();
 
-    });
+    const card = new PIXI.Sprite(getTexture('pairsSheet'));
+    card.x = 100;
+    card.y = 100;
+
+    app.stage.addChild(card);
+
 }
 
