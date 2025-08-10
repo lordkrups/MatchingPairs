@@ -29,7 +29,7 @@ export async function init() {
         { name: 'diamondCard', x: 818, y: 334, width: 190, height: 264 },
         { name: 'clubCard', x: 818, y: 599, width: 190, height: 264 },
         { name: 'backCard', x: 629, y: 599, width: 190, height: 264 },
-        
+
         { name: 'lose', x: 0, y: 865, width: 400, height: 158 },
         { name: 'win', x: 410, y: 865, width: 374, height: 158 },
         { name: 'lastCard', x: 786, y: 868, width: 134, height: 84 },
@@ -78,6 +78,16 @@ function makeCards(scaleContainer, textures) {
     back.x = 800;
     back.y = 400;
     scaleContainer.addChild(back);
+
+    back.interactive = true;
+    back.buttonMode = true;
+    back.on('pointerdown', () => {
+        printMsg();
+    });
+}
+
+function printMsg(){
+        console.log('Hello Banana!');
 }
 
 function makeFrame(scaleContainer, textures) {
@@ -119,7 +129,7 @@ function makeTextBoxs(scaleContainer, textures) {
     winMsg.scale = 1;
     scaleContainer.addChild(winMsg);
 
-const loseMsg = new PIXI.Sprite(textures.lose);
+    const loseMsg = new PIXI.Sprite(textures.lose);
     loseMsg.x = 600;
     loseMsg.y = 300;
     loseMsg.scale = 1;
