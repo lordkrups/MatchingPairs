@@ -2,6 +2,12 @@ import { app } from '../libs/renderer/index.js';
 import { loadTextures, texturesThatAreLoaded } from '../libs/loader/loader.js';
 import gameScene from './gameScene.js';
 
+// Importing GSAP and PixiPlugin for animations, don't like this way but it works for now
+import gsap from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js";
+import { PixiPlugin } from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/PixiPlugin.js";
+
+gsap.registerPlugin(PixiPlugin);
+
 /**
  * The main game logic.
 */
@@ -15,7 +21,7 @@ export async function init() {
 
     // makeTextBoxs(stage, loadedTexts);
     // makeCards(stage, loadedTexts);
-    makeFrame(stage, loadedTexts);
+    // makeFrame(stage, loadedTexts);
 
     // const lastCard = new PIXI.Sprite(loadedTexts.lastCard);
     // lastCard.x = 400;
@@ -27,10 +33,34 @@ export async function init() {
     // face.y = 50;
     // stage.addChild(face);
 
-    // const test = new PIXI.Sprite(loadedTexts.crab);
-    // test.x = 200;
-    // test.y = 50;
-    // stage.addChild(test);
+    const crab = new PIXI.Sprite(loadedTexts.crab);
+    crab.x = 200;
+    crab.y = 50;
+    stage.addChild(crab);
+
+    // To flip sprite
+    await gsap.to(crab, {
+        // pixi: { scaleX: 1, scaleY: 1},
+        pixi: { scaleX: 0, scaleY: 1 },
+        duration: 1,
+    });
+
+    // Change texture of crab
+    crab.texture = loadedTexts.bird;
+
+    await gsap.to(crab, {
+        // pixi: { scaleX: 1, scaleY: 1},
+        pixi: { scaleX: -1, scaleY: 1 },
+        duration: 1,
+    });
+
+    // FromTo flip
+    // gsap.fromTo(crab, {
+    //     pixi: { scaleX: 1, scaleY: 1 }
+    // }, {
+    //     pixi: { scaleX: -1, scaleY: 1 },
+    //     duration: 1,
+    // });
 
     // const bird = new PIXI.Sprite(loadedTexts.bird);
     // bird.x = 500;
