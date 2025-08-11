@@ -4,9 +4,11 @@ import { STAGE_OBJECTS, PLAYING_CARDS } from './index.js';
 const { Sprite, Container, Text } = PIXI;
 import { suits, cardsLayout, cardStates } from './gameConfigs.js';
 
+let clickCallback;
 
 export default async function init(cardClickedCallback) {
     const stage = app.stage;
+    clickCallback = cardClickedCallback;
 
     // Create a container for the cards
     const cardContainer = new Container();
@@ -69,7 +71,7 @@ function makeCardsInteractive(cb) {
                 };
 
                 await flipCard(dataOfCard); // Flip the card when clicked
-                cb(dataOfCard); // Call the callback function with the clicked card
+                // cb(dataOfCard); // Call the callback function with the clicked card
             });
         }
     });
@@ -87,17 +89,34 @@ function makeCardsNonInteractive() {
     });
 }
 
+// Function to make non interactive cards that have been matched
+export function makeMatchedCardsNonInteractive() {
+    PLAYING_CARDS.forEach(cardData => {
+        if (cardData.state === cardStates.matched) {
+            const card = STAGE_OBJECTS.cardSelectorContainer.getChildByName(`${cardData.suit}${cardData.num}`);
+            if (card) {
+                card.interactive = false;
+                card.on('pointerdown', () => {
+                    console.log(`Interactive disabled on: ${card.label}`);
+                });
+            }
+        }
+    });
+}
+
 // Function to flip card
-export async function flipCard(dataOfCard) {
+export async function flipCard(dataOfCard, reset = false) {
     dataOfCard.cardSprite.interactive = false;
 
     let newTexture;
     if (dataOfCard.state === cardStates.faceDown) {
         newTexture = texturesThatAreLoaded[dataOfCard.suit + 'Card'];
         PLAYING_CARDS[dataOfCard.arrayIndex].state = cardStates.faceUp;
+        dataOfCard.state = cardStates.faceUp;
     } else if (dataOfCard.state === cardStates.faceUp) {
         newTexture = texturesThatAreLoaded.backCard;
         PLAYING_CARDS[dataOfCard.arrayIndex].state = cardStates.faceDown;
+        dataOfCard.state = cardStates.faceDown;
     }
 
     await gsap.to(dataOfCard.cardSprite, {
@@ -115,4 +134,8 @@ export async function flipCard(dataOfCard) {
 
 
     dataOfCard.cardSprite.interactive = true;
+
+    if (!reset) {
+        clickCallback(dataOfCard);
+    }
 }
