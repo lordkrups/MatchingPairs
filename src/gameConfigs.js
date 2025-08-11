@@ -7,7 +7,7 @@ export const suits = {
 
 export const cardsLayout = {
     cardsPerRow: 8,
-    rowSpacing: 300,
+    rowSpacing: 270,
     colSpacing: 200,
     startX: 100,
     startY: 100

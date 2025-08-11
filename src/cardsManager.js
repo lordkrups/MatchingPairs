@@ -12,7 +12,7 @@ export default async function init(cardClickedCallback) {
     const cardContainer = new Container();
     cardContainer.name = 'cardSelectorContainer';
     cardContainer.x = 150;
-    cardContainer.y = 200;
+    cardContainer.y = 100;
     stage.addChild(cardContainer);
 
     STAGE_OBJECTS.cardSelectorContainer = cardContainer;

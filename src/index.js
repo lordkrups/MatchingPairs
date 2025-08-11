@@ -29,14 +29,15 @@ export async function init() {
     await cardsManager(onCardClick);
 
     const foundThing = app.stage.getChildByName("cardSelectorContainer");
-    console.log(foundThing); // returns thing
+    console.log(`Name: ${foundThing.name}`, foundThing);
+
 
     // const stage = app.stage;
 
     // debugger;
 
     // Start the game scene
-    // await gameScene();
+    await gameScene();
 }
 
 // anonymous function to call when card if clicked
