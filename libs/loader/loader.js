@@ -5,6 +5,14 @@ const filesToLoad = {
         {
             alias: 'face',
             srcs: '../../assets/face.png'
+        },
+        {
+            alias: 'crab',
+            srcs: '../../assets/crab.png'
+        },
+        {
+            alias: 'bird',
+            srcs: '../../assets/bird.png'
         }
     ],
     spriteSheets: [
@@ -29,10 +37,6 @@ const filesToLoad = {
                 { name: 'win', x: 410, y: 865, width: 374, height: 158 },
                 { name: 'lastCard', x: 786, y: 868, width: 134, height: 84 }
             ]
-        },
-        {
-            alias: 'imageTest',
-            srcs: '../../assets/ss.json'
         }
     ]
 };
@@ -60,16 +64,6 @@ export async function loadTextures() {
                     frame: new Rectangle(frame.x, frame.y, frame.width, frame.height)
                 });
             });
-        } else { // NEEDS TESTING!
-            const sSheet = await Assets.load(sheet.srcs);
-            const key = Object.keys(sSheet);
-            for (const imgLine in sSheet) {
-                const frame = sSheet[imgLine];
-                texturesThatAreLoaded[baseTexture.key] = new Texture({
-                    source: baseTexture.source,
-                    frame: new Rectangle(frame.frame.x, frame.frame.y, frame.frame.w, frame.frame.h)
-                });
-            }
         }
     }
 

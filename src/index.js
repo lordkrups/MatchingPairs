@@ -26,10 +26,15 @@ export async function init() {
     face.y = 50;
     stage.addChild(face);
 
-    const test = new PIXI.Sprite(loadedTexts.undefined);
+    const test = new PIXI.Sprite(loadedTexts.crab);
     test.x = 200;
     test.y = 50;
     stage.addChild(test);
+
+    const bird = new PIXI.Sprite(loadedTexts.bird);
+    bird.x = 500;
+    bird.y = 50;
+    stage.addChild(bird);
 }
 
 function makeCards(scaleContainer, textures) {
