@@ -1,5 +1,5 @@
 import { app } from '../libs/renderer/index.js';
-import { loadTextures } from '../libs/loader/index.js';
+import { loadTextures, texturesThatAreLoaded } from '../libs/loader/loader.js';
 
 
 /**
@@ -9,48 +9,27 @@ export async function init() {
     // You now have access to app.stage here
     const stage = app.stage;
 
-    // Example: add a test graphic to stage
-    // const graphic = new PIXI.Graphics();
-    // graphic.beginFill(0xff0000);
-    // graphic.drawRect(0, 0, 100, 100);
-    // graphic.endFill();
-    // stage.addChild(graphic);
+    const canGetLikeThisToo = await loadTextures();
+    const loadedTexts = texturesThatAreLoaded;
 
-    const frames = [
-        { name: 'bigFrame', x: 0, y: 0, width: 440, height: 590 },
-        { name: 'historyFrame', x: 0, y: 610, width: 624, height: 250 },
+    // makeTextBoxs(stage, loadedTexts);
+    // makeCards(stage, loadedTexts);
+    // makeFrame(stage, loadedTexts);
 
-        { name: 'balanceBox', x: 444, y: 0, width: 330, height: 106 },
-        { name: 'winningsBox', x: 458, y: 114, width: 330, height: 106 },
-        { name: 'savedWinningsBox', x: 448, y: 225, width: 348, height: 106 },
+    // const lastCard = new PIXI.Sprite(loadedTexts.lastCard);
+    // lastCard.x = 400;
+    // lastCard.y = 100;
+    // stage.addChild(lastCard);
 
-        { name: 'spadeCard', x: 440, y: 334, width: 190, height: 264 },
-        { name: 'heartCard', x: 629, y: 334, width: 190, height: 264 },
-        { name: 'diamondCard', x: 818, y: 334, width: 190, height: 264 },
-        { name: 'clubCard', x: 818, y: 599, width: 190, height: 264 },
-        { name: 'backCard', x: 629, y: 599, width: 190, height: 264 },
+    const face = new PIXI.Sprite(loadedTexts.face);
+    face.x = 1200;
+    face.y = 50;
+    stage.addChild(face);
 
-        { name: 'lose', x: 0, y: 865, width: 400, height: 158 },
-        { name: 'win', x: 410, y: 865, width: 374, height: 158 },
-        { name: 'lastCard', x: 786, y: 868, width: 134, height: 84 },
-
-    ];
-
-    const textures = await loadTextures('../../assets/PairsSheet.png', frames);
-
-    // const scaleContainer = new PIXI.Container();
-    // stage.addChild(scaleContainer);
-
-
-
-    makeTextBoxs(stage, textures);
-    makeCards(stage, textures);
-    makeFrame(stage, textures);
-
-    const lastCard = new PIXI.Sprite(textures.lastCard);
-    lastCard.x = 400;
-    lastCard.y = 100;
-    stage.addChild(lastCard);
+    const test = new PIXI.Sprite(loadedTexts.undefined);
+    test.x = 200;
+    test.y = 50;
+    stage.addChild(test);
 }
 
 function makeCards(scaleContainer, textures) {
@@ -86,8 +65,8 @@ function makeCards(scaleContainer, textures) {
     });
 }
 
-function printMsg(){
-        console.log('Hello Banana!');
+function printMsg() {
+    console.log('Hello Banana!!');
 }
 
 function makeFrame(scaleContainer, textures) {
