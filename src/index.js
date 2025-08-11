@@ -1,6 +1,6 @@
 import { app } from '../libs/renderer/index.js';
 import { loadTextures, texturesThatAreLoaded } from '../libs/loader/loader.js';
-
+import gameScene from './gameScene.js';
 
 /**
  * The main game logic.
@@ -8,33 +8,34 @@ import { loadTextures, texturesThatAreLoaded } from '../libs/loader/loader.js';
 export async function init() {
     // You now have access to app.stage here
     const stage = app.stage;
-
     const canGetLikeThisToo = await loadTextures();
     const loadedTexts = texturesThatAreLoaded;
 
+    await gameScene(); // instead of gameScene.init();
+
     // makeTextBoxs(stage, loadedTexts);
     // makeCards(stage, loadedTexts);
-    // makeFrame(stage, loadedTexts);
+    makeFrame(stage, loadedTexts);
 
     // const lastCard = new PIXI.Sprite(loadedTexts.lastCard);
     // lastCard.x = 400;
     // lastCard.y = 100;
     // stage.addChild(lastCard);
 
-    const face = new PIXI.Sprite(loadedTexts.face);
-    face.x = 1200;
-    face.y = 50;
-    stage.addChild(face);
+    // const face = new PIXI.Sprite(loadedTexts.face);
+    // face.x = 1200;
+    // face.y = 50;
+    // stage.addChild(face);
 
-    const test = new PIXI.Sprite(loadedTexts.crab);
-    test.x = 200;
-    test.y = 50;
-    stage.addChild(test);
+    // const test = new PIXI.Sprite(loadedTexts.crab);
+    // test.x = 200;
+    // test.y = 50;
+    // stage.addChild(test);
 
-    const bird = new PIXI.Sprite(loadedTexts.bird);
-    bird.x = 500;
-    bird.y = 50;
-    stage.addChild(bird);
+    // const bird = new PIXI.Sprite(loadedTexts.bird);
+    // bird.x = 500;
+    // bird.y = 50;
+    // stage.addChild(bird);
 }
 
 function makeCards(scaleContainer, textures) {
