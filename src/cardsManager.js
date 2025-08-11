@@ -2,17 +2,17 @@ import { texturesThatAreLoaded } from '../libs/loader/loader.js';
 import { app } from '../libs/renderer/index.js';
 import { STAGE_OBJECTS, PLAYING_CARDS } from './index.js';
 const { Sprite, Container, Text } = PIXI;
-import { suits, cardsLayout } from './gameConfigs.js';
+import { suits, cardsLayout, cardStates } from './gameConfigs.js';
 
 
-export default async function init() {
+export default async function init(cardClickedCallback) {
     const stage = app.stage;
 
     // Create a container for the cards
     const cardContainer = new Container();
     cardContainer.name = 'cardSelectorContainer';
-    cardContainer.x = 50;
-    cardContainer.y = 50;
+    cardContainer.x = 150;
+    cardContainer.y = 200;
     stage.addChild(cardContainer);
 
     STAGE_OBJECTS.cardSelectorContainer = cardContainer;
@@ -20,17 +20,18 @@ export default async function init() {
     // Create cards based on suits and numbers
     instantiateCards(cardContainer, texturesThatAreLoaded);
 
-    makeCardsInteractive();
+    makeCardsInteractive(cardClickedCallback);
     // makeCardsNonInteractive();
 }
 
 function instantiateCards(cardContainer, textures) {
     const suitList = Object.values(suits);
     const cardNumbers = [1, 2, 3, 4]; // Can be changed to however many you have
+    const state = cardStates.faceDown; // Initial state of the cards
 
     for (let num of cardNumbers) {
         for (let suit of suitList) {
-            PLAYING_CARDS.push({ suit, num });
+            PLAYING_CARDS.push({ suit, num, state });
         }
     }
 
@@ -39,22 +40,36 @@ function instantiateCards(cardContainer, textures) {
         const row = Math.floor(i / cardsLayout.cardsPerRow);
         const col = i % cardsLayout.cardsPerRow;
 
-        const card = new Sprite(texturesThatAreLoaded[`${cardData.suit}Card`]);
+        // const card = new Sprite(texturesThatAreLoaded[`${cardData.suit}Card`]);
+        const card = new Sprite(texturesThatAreLoaded.backCard);
         card.label = `${cardData.suit}${cardData.num}`;
         card.x = cardsLayout.startX + col * cardsLayout.colSpacing;
         card.y = cardsLayout.startY + row * cardsLayout.rowSpacing;
-
+        card.anchor.set(0.5);
         cardContainer.addChild(card);
+        PLAYING_CARDS[i].cardIndex = i;
     });
 }
 
-function makeCardsInteractive() {
+function makeCardsInteractive(cb) {
     PLAYING_CARDS.forEach(cardData => {
         const card = STAGE_OBJECTS.cardSelectorContainer.getChildByName(`${cardData.suit}${cardData.num}`);
         if (card) {
             card.interactive = true;
             card.on('pointerdown', () => {
-                console.log(`Clicked on: ${card.label}`);
+                // console.log(`Clicked on: ${card.label}`);
+                cb(card); // Call the callback function with the clicked card
+
+                const dataOfCard = {
+                    cardSprite: card,
+                    suit: cardData.suit,
+                    num: cardData.num,
+                    label: card.label,
+                    state: cardData.state,
+                    arrayIndex: cardData.cardIndex
+                };
+
+                flipCard(dataOfCard); // Flip the card when clicked
             });
         }
     });
@@ -70,4 +85,34 @@ function makeCardsNonInteractive() {
             });
         }
     });
+}
+
+// Function to flip card
+export async function flipCard(dataOfCard) {
+    dataOfCard.cardSprite.interactive = false;
+
+    let newTexture;
+    if (dataOfCard.state === cardStates.faceDown) {
+        newTexture = texturesThatAreLoaded[dataOfCard.suit + 'Card'];
+        PLAYING_CARDS[dataOfCard.arrayIndex].state = cardStates.faceUp;
+    } else if (dataOfCard.state === cardStates.faceUp) {
+        newTexture = texturesThatAreLoaded.backCard;
+        PLAYING_CARDS[dataOfCard.arrayIndex].state = cardStates.faceDown;
+    }
+
+    await gsap.to(dataOfCard.cardSprite, {
+        pixi: { scaleX: 0, scaleY: 1 },
+        duration: 0.25,
+    });
+
+    // Change texture of card
+    dataOfCard.cardSprite.texture = newTexture;
+
+    await gsap.to(dataOfCard.cardSprite, {
+        pixi: { scaleX: -1, scaleY: 1 },
+        duration: 0.25,
+    });
+
+
+    dataOfCard.cardSprite.interactive = true;
 }

@@ -26,7 +26,7 @@ export async function init() {
     await loadTextures();
 
     // Initial setup of the game
-    await cardsManager();
+    await cardsManager(onCardClick);
 
     const foundThing = app.stage.getChildByName("cardSelectorContainer");
     console.log(foundThing); // returns thing
@@ -37,4 +37,9 @@ export async function init() {
 
     // Start the game scene
     // await gameScene();
+}
+
+// anonymous function to call when card if clicked
+export function onCardClick(card) {
+    console.log(`Clicked on: ${card.label}`);
 }

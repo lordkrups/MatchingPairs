@@ -12,3 +12,9 @@ export const cardsLayout = {
     startX: 100,
     startY: 100
 };
+
+export const cardStates = {
+    faceDown: 'faceDown',
+    faceUp: 'faceUp',
+    matched: 'matched'
+};
