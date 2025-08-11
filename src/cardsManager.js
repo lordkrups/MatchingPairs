@@ -56,9 +56,8 @@ function makeCardsInteractive(cb) {
         const card = STAGE_OBJECTS.cardSelectorContainer.getChildByName(`${cardData.suit}${cardData.num}`);
         if (card) {
             card.interactive = true;
-            card.on('pointerdown', () => {
+            card.on('pointerdown', async () => {
                 // console.log(`Clicked on: ${card.label}`);
-                cb(card); // Call the callback function with the clicked card
 
                 const dataOfCard = {
                     cardSprite: card,
@@ -69,7 +68,8 @@ function makeCardsInteractive(cb) {
                     arrayIndex: cardData.cardIndex
                 };
 
-                flipCard(dataOfCard); // Flip the card when clicked
+                await flipCard(dataOfCard); // Flip the card when clicked
+                cb(dataOfCard); // Call the callback function with the clicked card
             });
         }
     });
