@@ -18,3 +18,5 @@ export const cardStates = {
     faceUp: 'faceUp',
     matched: 'matched'
 };
+
+export const maxAttempts = 4;

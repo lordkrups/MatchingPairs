@@ -6,10 +6,10 @@ import { PixiPlugin } from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/PixiPlugin.
 import * as renderer from '../libs/renderer/index.js';
 import { loadTextures, texturesThatAreLoaded } from '../libs/loader/loader.js';
 
-import cardsManager, { flipCard, makeMatchedCardsNonInteractive } from './cardsManager.js';
+import cardsManager, { flipCard, makeMatchedCardsNonInteractive, makeCardsNonInteractive } from './cardsManager.js';
 import gameScene from './gameScene.js';
 
-import { cardStates } from './gameConfigs.js';
+import { cardStates, maxAttempts } from './gameConfigs.js';
 
 gsap.registerPlugin(PixiPlugin);
 
@@ -38,11 +38,58 @@ export async function init() {
     await loadTextures();
 
     // Setup cards, pass callback for card click handling
-    await cardsManager(onCardClick);
+    cardsManager(onCardClick);
 
     // Initial setup of the game
-    await gameScene();
-    
+    gameScene();
+
+    await waitForAllCardsToBeMatched();
+}
+
+async function waitForAllCardsToBeMatched(cardSprite) {
+    // Waits for all cards to be matched
+    return new Promise(resolve => {
+        const checkInterval = setInterval(() => {
+            if (PLAYING_CARDS.every(card => card.state === cardStates.matched)) {
+                clearInterval(checkInterval);
+                resolve();
+                allCardsMatched();
+            }
+
+            if (ATTEMPTS >= maxAttempts) {
+                clearInterval(checkInterval);
+                resolve();
+                tooManyAttempts();
+            }
+        }, 500);
+    });
+}
+
+function allCardsMatched() {
+    debugger;
+    const winSprite = STAGE_OBJECTS.winSprite;
+    winSprite.alpha = 0;
+    winSprite.visible = true;
+
+    gsap.to(winSprite, {
+        // pixi: { scaleX: 1, scaleY: 1},
+        pixi: { alpha: 1 },
+        duration: 1,
+    });
+}
+
+function tooManyAttempts() {
+    makeCardsNonInteractive();
+
+    const loseSprite = STAGE_OBJECTS.loseSprite;
+    loseSprite.alpha = 0;
+    loseSprite.visible = true;
+
+    gsap.to(loseSprite, {
+        // pixi: { scaleX: 1, scaleY: 1},
+        pixi: { alpha: 1 },
+        duration: 1,
+    });
 }
 
 export function onCardClick(dataOfCard) {
@@ -95,6 +142,7 @@ function performCardChecks(dataOfCard) {
             flipCard(CARD_STATES.CURRENT_CARD, true);
             flipCard(CARD_STATES.PREVIOUS_CARD, true);
             FAILURES++;
+            hideLastCardIndicator();
             // Clear selections after mismatch
             CARD_STATES.CURRENT_CARD = undefined;
             CARD_STATES.PREVIOUS_CARD = undefined;

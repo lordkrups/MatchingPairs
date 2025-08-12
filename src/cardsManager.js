@@ -77,7 +77,7 @@ function makeCardsInteractive(cb) {
     });
 }
 
-function makeCardsNonInteractive() {
+export function makeCardsNonInteractive() {
     PLAYING_CARDS.forEach(cardData => {
         const card = STAGE_OBJECTS.cardSelectorContainer.getChildByName(`${cardData.suit}${cardData.num}`);
         if (card) {
@@ -99,14 +99,25 @@ export function makeMatchedCardsNonInteractive() {
                 card.on('pointerdown', () => {
                     console.log(`Interactive disabled on: ${card.label}`);
                 });
+                alphaDownCard(card);
             }
         }
+    });
+}
+
+function alphaDownCard(cardSprite) {
+    //GSAP tween to alpha the card down
+    gsap.to(cardSprite, {
+        // pixi: { scaleX: 1, scaleY: 1},
+        pixi: { alpha: 0.5 },
+        duration: 1,
     });
 }
 
 // Function to flip card
 export async function flipCard(dataOfCard, reset = false) {
     dataOfCard.cardSprite.interactive = false;
+    STAGE_OBJECTS.cardSelectorContainer.interactiveChildren = false;
 
     let newTexture;
     if (dataOfCard.state === cardStates.faceDown) {
@@ -134,6 +145,7 @@ export async function flipCard(dataOfCard, reset = false) {
 
 
     dataOfCard.cardSprite.interactive = true;
+    STAGE_OBJECTS.cardSelectorContainer.interactiveChildren = true;
 
     if (!reset) {
         clickCallback(dataOfCard);
