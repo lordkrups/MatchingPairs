@@ -206,9 +206,7 @@ function instantiateClickCatcher(stage) {
     stage.addChild(clickCatcher);
     STAGE_OBJECTS.clickCatcher = clickCatcher;
 
-
-
-    // Add a transparent sprite to catch clicks
+    // Add a transparent sprite to catch clicks for resetting the game
     const transparentSprite = new Sprite();
     transparentSprite.width = app.screen.width;
     transparentSprite.height = app.screen.height;
@@ -230,23 +228,7 @@ function instantiateClickCatcher(stage) {
         CARD_STATES.CURRENT_CARD = undefined;
         CARD_STATES.PREVIOUS_CARD = undefined;
 
-        // Flips all cards back to face down
-        PLAYING_CARDS.forEach(cardData => {
-            cardData.state = cardStates.faceDown;
-            const cardSprite = STAGE_OBJECTS.cardSelectorContainer.getChildByName(`${cardData.suit}${cardData.num}`);
-
-            const dataOfCard = {
-                cardSprite: cardSprite,
-                suit: cardData.suit,
-                num: cardData.num,
-                label: cardData.label,
-                state: cardData.state,
-                arrayIndex: cardData.cardIndex
-            };
-
-            // flipCard(dataOfCard, true);
-            resetCards();
-        });
+        resetCards();
 
         // Reset UI elements
         STAGE_OBJECTS.attemptCounterText.text = `Attempts: ${ATTEMPTS}`;

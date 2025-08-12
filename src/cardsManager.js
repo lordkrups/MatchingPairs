@@ -37,6 +37,12 @@ function instantiateCards(cardContainer, textures) {
         }
     }
 
+    // Shuffle the cards array (Fisher–Yates shuffle)
+    for (let i = PLAYING_CARDS.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [PLAYING_CARDS[i], PLAYING_CARDS[j]] = [PLAYING_CARDS[j], PLAYING_CARDS[i]];
+    }
+
     // Place them
     PLAYING_CARDS.forEach((cardData, i) => {
         const row = Math.floor(i / cardsLayout.cardsPerRow);
@@ -153,7 +159,6 @@ export async function flipCard(dataOfCard, reset = false) {
 }
 
 export function resetCards() {
-    // Flip all cards back to face down and set their texture to be backCard
     PLAYING_CARDS.forEach(async cardData => {
         cardData.state = cardStates.faceDown;
         const cardSprite = STAGE_OBJECTS.cardSelectorContainer.getChildByName(`${cardData.suit}${cardData.num}`);
@@ -162,12 +167,13 @@ export function resetCards() {
             cardSprite.interactive = true;
             cardSprite.alpha = 1;
 
+            // Flip animation - closing
             await gsap.to(cardSprite, {
                 pixi: { scaleX: 0, scaleY: 1 },
                 duration: 0.25,
             });
 
-            // Change texture of card
+            // Change texture to back of card
             cardSprite.texture = texturesThatAreLoaded.backCard;
 
             await gsap.to(cardSprite, {
@@ -176,9 +182,32 @@ export function resetCards() {
             });
         }
 
-        // Reset the card data
+        // Store reference to the card's sprite
         cardData.cardSprite = cardSprite;
+    });
 
+    // Shuffle the cards array
+    for (let i = PLAYING_CARDS.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [PLAYING_CARDS[i], PLAYING_CARDS[j]] = [PLAYING_CARDS[j], PLAYING_CARDS[i]];
+    }
 
+    PLAYING_CARDS.forEach((cardData, i) => {
+        const row = Math.floor(i / cardsLayout.cardsPerRow);
+        const col = i % cardsLayout.cardsPerRow;
+
+        if (cardData.cardSprite) {
+            gsap.to(cardData.cardSprite, {
+                pixi: {
+                    x: cardsLayout.startX + col * cardsLayout.colSpacing,
+                    y: cardsLayout.startY + row * cardsLayout.rowSpacing,
+                    duration: 0.5, // Smooth animation when reordering
+                    ease: "power2.inOut"
+                }
+            });
+        }
+
+        // Update stored index
+        cardData.cardIndex = i;
     });
 }
