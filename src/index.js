@@ -83,7 +83,7 @@ async function allCardsMatched() {
     const winSprite = STAGE_OBJECTS.winSprite;
     winSprite.alpha = 0;
     winSprite.visible = true;
-
+    STAGE_OBJECTS.restartText.visible = true;
     await gsap.to(winSprite, {
         // pixi: { scaleX: 1, scaleY: 1},
         pixi: { alpha: 1 },
@@ -103,6 +103,7 @@ async function tooManyAttempts() {
     const loseSprite = STAGE_OBJECTS.loseSprite;
     loseSprite.alpha = 0;
     loseSprite.visible = true;
+    STAGE_OBJECTS.restartText.visible = true;
 
     await gsap.to(loseSprite, {
         // pixi: { scaleX: 1, scaleY: 1},
@@ -239,6 +240,7 @@ function instantiateClickCatcher(stage) {
         // Hide win/lose sprites
         STAGE_OBJECTS.winSprite.visible = false;
         STAGE_OBJECTS.loseSprite.visible = false;
+        STAGE_OBJECTS.restartText.visible = false;
 
         // debugger;
 

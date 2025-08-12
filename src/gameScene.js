@@ -95,4 +95,16 @@ function instantiateWinLose(stage) {
     loseSprite.visible = false;
     stage.addChild(loseSprite);
     STAGE_OBJECTS.loseSprite = loseSprite;
+
+    const restartText = new Text('CLICK TO PLAY AGAIN', {
+        fontSize: 50,
+        fill: '#ffffff',
+        align: 'center'
+    });
+    restartText.anchor.set(0.5);
+    restartText.x = 1200;
+    restartText.y = 900;
+    restartText.visible = false;
+    stage.addChild(restartText);
+    STAGE_OBJECTS.restartText = restartText;
 }

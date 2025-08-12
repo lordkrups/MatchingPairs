@@ -57,6 +57,8 @@ function instantiateCards(cardContainer, textures) {
         cardContainer.addChild(card);
         PLAYING_CARDS[i].cardIndex = i;
     });
+
+    resetCards(); // Reset cards to face down state
 }
 
 function makeCardsInteractive(cb) {
