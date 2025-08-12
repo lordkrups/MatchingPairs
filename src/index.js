@@ -67,9 +67,7 @@ async function waitForAllCardsToBeMatched(cardSprite) {
                 clearInterval(checkInterval);
                 resolve();
                 allCardsMatched();
-            }
-
-            if (ATTEMPTS >= maxAttempts) {
+            } else if (ATTEMPTS >= maxAttempts) {
                 clearInterval(checkInterval);
                 resolve();
                 tooManyAttempts();
