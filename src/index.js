@@ -1,152 +1,249 @@
-import { app } from '../libs/renderer/index.js';
-import { loadTextures, texturesThatAreLoaded } from '../libs/loader/loader.js';
-import gameScene from './gameScene.js';
-
-// Importing GSAP and PixiPlugin for animations, don't like this way but it works for now
+// Third-party libs
 import gsap from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js";
 import { PixiPlugin } from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/PixiPlugin.js";
+const { Sprite, Container, Text } = PIXI;
+
+// Local libs and modules
+import { app } from '../libs/renderer/index.js';
+import * as renderer from '../libs/renderer/index.js';
+import { loadTextures, texturesThatAreLoaded } from '../libs/loader/loader.js';
+
+import cardsManager, { flipCard, makeMatchedCardsNonInteractive, makeCardsNonInteractive, resetCards } from './cardsManager.js';
+import gameScene from './gameScene.js';
+
+import { cardStates, gameState, maxAttempts } from './gameConfigs.js';
 
 gsap.registerPlugin(PixiPlugin);
+
+// Global variables
+export const STAGE_OBJECTS = {};
+export const PLAYING_CARDS = [];
+
+// GAME STATE VARIABLES
+export let GAME_STATE = gameState.init;
+
+export let ATTEMPTS = 0;
+export let SUCCESS = 0;
+export let FAILURES = 0;
+
+export const CARD_STATES = {
+    CURRENT_CARD: undefined,
+    PREVIOUS_CARD: undefined
+};
+
+let poop = true; // Set to false to skip game setup
 
 /**
  * The main game logic.
 */
 export async function init() {
-    // You now have access to app.stage here
-    const stage = app.stage;
-    const canGetLikeThisToo = await loadTextures();
-    const loadedTexts = texturesThatAreLoaded;
+    if (GAME_STATE === gameState.init) {
+        // Set the game up, ready to use
+        await renderer.setup();
 
-    await gameScene(); // instead of gameScene.init();
+        // Load the textures
+        await loadTextures();
 
-    // makeTextBoxs(stage, loadedTexts);
-    // makeCards(stage, loadedTexts);
-    // makeFrame(stage, loadedTexts);
+        // Setup cards, pass callback for card click handling
+        cardsManager(onCardClick);
 
-    // const lastCard = new PIXI.Sprite(loadedTexts.lastCard);
-    // lastCard.x = 400;
-    // lastCard.y = 100;
-    // stage.addChild(lastCard);
+        // Initial setup of the game
+        await gameScene();
 
-    // const face = new PIXI.Sprite(loadedTexts.face);
-    // face.x = 1200;
-    // face.y = 50;
-    // stage.addChild(face);
+        instantiateClickCatcher(app.stage);
 
-    const crab = new PIXI.Sprite(loadedTexts.crab);
-    crab.x = 200;
-    crab.y = 50;
-    stage.addChild(crab);
+        GAME_STATE = gameState.playing;
+    }
 
-    // To flip sprite
-    await gsap.to(crab, {
+
+    await waitForAllCardsToBeMatched();
+}
+
+async function waitForAllCardsToBeMatched(cardSprite) {
+    // Waits for all cards to be matched, naughty but works
+    return new Promise(resolve => {
+        const checkInterval = setInterval(() => {
+            if (PLAYING_CARDS.every(card => card.state === cardStates.matched)) {
+                clearInterval(checkInterval);
+                resolve();
+                allCardsMatched();
+            }
+
+            if (ATTEMPTS >= maxAttempts) {
+                clearInterval(checkInterval);
+                resolve();
+                tooManyAttempts();
+            }
+        }, 500);
+    });
+}
+
+async function allCardsMatched() {
+
+    const winSprite = STAGE_OBJECTS.winSprite;
+    winSprite.alpha = 0;
+    winSprite.visible = true;
+    STAGE_OBJECTS.restartText.visible = true;
+    await gsap.to(winSprite, {
         // pixi: { scaleX: 1, scaleY: 1},
-        pixi: { scaleX: 0, scaleY: 1 },
+        pixi: { alpha: 1 },
         duration: 1,
     });
 
-    // Change texture of crab
-    crab.texture = loadedTexts.bird;
+    GAME_STATE = gameState.won;
 
-    await gsap.to(crab, {
+    STAGE_OBJECTS.clickCatcher.interactive = true;
+    console.log('ALL CARDS MATCHED.');
+    console.log('WON');
+}
+
+async function tooManyAttempts() {
+    makeCardsNonInteractive();
+
+    const loseSprite = STAGE_OBJECTS.loseSprite;
+    loseSprite.alpha = 0;
+    loseSprite.visible = true;
+    STAGE_OBJECTS.restartText.visible = true;
+
+    await gsap.to(loseSprite, {
         // pixi: { scaleX: 1, scaleY: 1},
-        pixi: { scaleX: -1, scaleY: 1 },
+        pixi: { alpha: 1 },
         duration: 1,
     });
 
-    // FromTo flip
-    // gsap.fromTo(crab, {
-    //     pixi: { scaleX: 1, scaleY: 1 }
-    // }, {
-    //     pixi: { scaleX: -1, scaleY: 1 },
-    //     duration: 1,
-    // });
+    GAME_STATE = gameState.lost;
 
-    // const bird = new PIXI.Sprite(loadedTexts.bird);
-    // bird.x = 500;
-    // bird.y = 50;
-    // stage.addChild(bird);
+    STAGE_OBJECTS.clickCatcher.interactive = true;
+    console.log('Game Over! Too many attempts.');
+    console.log('LOSE');
 }
 
-function makeCards(scaleContainer, textures) {
-    const spade = new PIXI.Sprite(textures.spadeCard);
-    spade.x = 0;
-    spade.y = 400;
-    scaleContainer.addChild(spade);
+export function onCardClick(dataOfCard) {
+    // Move and show the last card indicator if the card is now face up
+    if (dataOfCard.state === cardStates.faceUp) {
+        moveShowLastCardIndicator(dataOfCard.cardSprite);
+    } else {
+        hideLastCardIndicator();
+    }
 
-    const heart = new PIXI.Sprite(textures.heartCard);
-    heart.x = 200;
-    heart.y = 400;
-    scaleContainer.addChild(heart);
+    performCardChecks(dataOfCard);
+}
 
-    const diamond = new PIXI.Sprite(textures.diamondCard);
-    diamond.x = 400;
-    diamond.y = 400;
-    scaleContainer.addChild(diamond);
+function performCardChecks(dataOfCard) {
+    if (!CARD_STATES.CURRENT_CARD) {
+        // No card selected yet, set current
+        CARD_STATES.CURRENT_CARD = dataOfCard;
+        return;
+    }
 
-    const club = new PIXI.Sprite(textures.clubCard);
-    club.x = 600;
-    club.y = 400;
-    scaleContainer.addChild(club);
+    // If clicked the same card again, ignore
+    if (CARD_STATES.CURRENT_CARD.label === dataOfCard.label) {
+        CARD_STATES.CURRENT_CARD = undefined;
+        return;
+    }
 
-    const back = new PIXI.Sprite(textures.backCard);
-    back.x = 800;
-    back.y = 400;
-    scaleContainer.addChild(back);
+    if (!CARD_STATES.PREVIOUS_CARD) {
+        // Have a current, but no previous, Increment attempts
+        ATTEMPTS++;
+        // Move current to previous and set new current
+        CARD_STATES.PREVIOUS_CARD = CARD_STATES.CURRENT_CARD;
+        CARD_STATES.CURRENT_CARD = dataOfCard;
+    }
 
-    back.interactive = true;
-    back.buttonMode = true;
-    back.on('pointerdown', () => {
-        printMsg();
+    // Now we have two cards selected, check match
+    if (CARD_STATES.CURRENT_CARD && CARD_STATES.PREVIOUS_CARD) {
+        if (CARD_STATES.CURRENT_CARD.suit === CARD_STATES.PREVIOUS_CARD.suit) {
+            // Cards match
+            SUCCESS++;
+            // Set PLAYING_CARDS to matched state
+            PLAYING_CARDS[CARD_STATES.CURRENT_CARD.arrayIndex].state = cardStates.matched;
+            PLAYING_CARDS[CARD_STATES.PREVIOUS_CARD.arrayIndex].state = cardStates.matched;
+            makeMatchedCardsNonInteractive();
+            hideLastCardIndicator();
+
+            // Clear selections after match
+            CARD_STATES.CURRENT_CARD = undefined;
+            CARD_STATES.PREVIOUS_CARD = undefined;
+        } else {
+            // Cards do NOT match
+            flipCard(CARD_STATES.CURRENT_CARD, true);
+            flipCard(CARD_STATES.PREVIOUS_CARD, true);
+            FAILURES++;
+            hideLastCardIndicator();
+            // Clear selections after mismatch
+            CARD_STATES.CURRENT_CARD = undefined;
+            CARD_STATES.PREVIOUS_CARD = undefined;
+        }
+    }
+
+    updateGameStats();
+}
+
+function moveShowLastCardIndicator(cardSprite) {
+    const lastCardIndicator = STAGE_OBJECTS.lastCardIndicator;
+
+    lastCardIndicator.x = cardSprite.x + 80;
+    lastCardIndicator.y = cardSprite.y + 200;
+    lastCardIndicator.visible = true;
+}
+
+function hideLastCardIndicator() {
+    STAGE_OBJECTS.lastCardIndicator.visible = false;
+}
+
+export function updateGameStats() {
+    STAGE_OBJECTS.attemptCounterText.text = `Attempts: ${ATTEMPTS}`;
+    STAGE_OBJECTS.successCounterText.text = `Success: ${SUCCESS}`;
+    STAGE_OBJECTS.failedCounterText.text = `Failures: ${FAILURES}`;
+}
+
+function instantiateClickCatcher(stage) {
+    const clickCatcher = new Container();
+    clickCatcher.name = 'clickCatcher';
+    clickCatcher.x = 0;
+    clickCatcher.y = 0;
+    clickCatcher.width = app.screen.width;
+    clickCatcher.height = app.screen.height;
+    stage.addChild(clickCatcher);
+    STAGE_OBJECTS.clickCatcher = clickCatcher;
+
+    // Add a transparent sprite to catch clicks for resetting the game
+    const transparentSprite = new Sprite();
+    transparentSprite.width = app.screen.width;
+    transparentSprite.height = app.screen.height;
+    transparentSprite.interactive = false;
+    clickCatcher.addChild(transparentSprite);
+
+    STAGE_OBJECTS.clickCatcher.on('pointerdown', () => {
+        STAGE_OBJECTS.clickCatcher.interactive = false;
+        resetGame();
     });
-}
 
-function printMsg() {
-    console.log('Hello Banana!!');
-}
+    function resetGame() {
+        // Reset game state and UI elements
+        ATTEMPTS = 0;
+        SUCCESS = 0;
+        FAILURES = 0;
+        updateGameStats();
 
-function makeFrame(scaleContainer, textures) {
-    const bigFrame = new PIXI.Sprite(textures.bigFrame);
-    bigFrame.x = 0;
-    bigFrame.y = 0;
-    bigFrame.scale = 1;
-    scaleContainer.addChild(bigFrame);
+        CARD_STATES.CURRENT_CARD = undefined;
+        CARD_STATES.PREVIOUS_CARD = undefined;
 
-    const historyFrame = new PIXI.Sprite(textures.historyFrame);
-    historyFrame.x = 0;
-    historyFrame.y = 0;
-    historyFrame.scale = 1;
-    scaleContainer.addChild(historyFrame);
-}
+        resetCards();
 
-function makeTextBoxs(scaleContainer, textures) {
-    const balanceBox = new PIXI.Sprite(textures.balanceBox);
-    balanceBox.x = 100;
-    balanceBox.y = 100;
-    balanceBox.scale = 1;
-    scaleContainer.addChild(balanceBox);
+        // Reset UI elements
+        STAGE_OBJECTS.attemptCounterText.text = `Attempts: ${ATTEMPTS}`;
+        STAGE_OBJECTS.successCounterText.text = `Success: ${SUCCESS}`;
+        STAGE_OBJECTS.failedCounterText.text = `Failures: ${FAILURES}`;
+        STAGE_OBJECTS.lastCardIndicator.visible = false;
 
-    const winningsBox = new PIXI.Sprite(textures.winningsBox);
-    winningsBox.x = 200;
-    winningsBox.y = 200;
-    winningsBox.scale = 1;
-    scaleContainer.addChild(winningsBox);
+        // Hide win/lose sprites
+        STAGE_OBJECTS.winSprite.visible = false;
+        STAGE_OBJECTS.loseSprite.visible = false;
+        STAGE_OBJECTS.restartText.visible = false;
 
-    const savedWinningsBox = new PIXI.Sprite(textures.savedWinningsBox);
-    savedWinningsBox.x = 300;
-    savedWinningsBox.y = 300;
-    savedWinningsBox.scale = 1;
-    scaleContainer.addChild(savedWinningsBox);
+        // debugger;
 
-    const winMsg = new PIXI.Sprite(textures.win);
-    winMsg.x = 600;
-    winMsg.y = 100;
-    winMsg.scale = 1;
-    scaleContainer.addChild(winMsg);
-
-    const loseMsg = new PIXI.Sprite(textures.lose);
-    loseMsg.x = 600;
-    loseMsg.y = 300;
-    loseMsg.scale = 1;
-    scaleContainer.addChild(loseMsg);
+        init(); // Reinitialize the game
+    }
 }
