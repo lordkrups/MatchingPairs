@@ -1,17 +1,9 @@
 export const assetList = {
     individualImages: [
-        {
-            alias: 'face',
-            srcs: '../../assets/face.png'
-        },
-        {
-            alias: 'crab',
-            srcs: '../../assets/crab.png'
-        },
-        {
-            alias: 'bird',
-            srcs: '../../assets/bird.png'
-        }
+    //     {
+    //         alias: 'bird',
+    //         srcs: '../../assets/bird.png'
+    //     }
     ],
     spriteSheets: [
         {

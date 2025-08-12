@@ -1,25 +1,26 @@
-import { loadTextures, texturesThatAreLoaded } from '../libs/loader/loader.js';
-import cardsManager from './cardsManager.js';
-import gameScene from './gameScene.js';
-import * as renderer from '../libs/renderer/index.js';
-import { cardStates } from './gameConfigs.js';
-import { flipCard, makeMatchedCardsNonInteractive } from './cardsManager.js';
-
-// Importing GSAP and PixiPlugin for animations, don't like this way but it works for now
+// Third-party libs
 import gsap from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js";
 import { PixiPlugin } from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/PixiPlugin.js";
 
+// Local libs and modules
+import * as renderer from '../libs/renderer/index.js';
+import { loadTextures, texturesThatAreLoaded } from '../libs/loader/loader.js';
+
+import cardsManager, { flipCard, makeMatchedCardsNonInteractive } from './cardsManager.js';
+import gameScene from './gameScene.js';
+
+import { cardStates } from './gameConfigs.js';
+
 gsap.registerPlugin(PixiPlugin);
 
+// Global variables
 export const STAGE_OBJECTS = {};
-
 export const PLAYING_CARDS = [];
 
 // GAME STATE VARIABLES
 export let ATTEMPTS = 0;
 export let SUCCESS = 0;
 export let FAILURES = 0;
-
 
 export const CARD_STATES = {
     CURRENT_CARD: undefined,
@@ -36,25 +37,28 @@ export async function init() {
     // Load the textures
     await loadTextures();
 
-    // Initial setup of the game
+    // Setup cards, pass callback for card click handling
     await cardsManager(onCardClick);
 
-    // Start the game scene
+    // Initial setup of the game
     await gameScene();
+    
 }
 
 export function onCardClick(dataOfCard) {
+    // Move and show the last card indicator if the card is now face up
     if (dataOfCard.state === cardStates.faceUp) {
         moveShowLastCardIndicator(dataOfCard.cardSprite);
     } else {
         hideLastCardIndicator();
-        // Do NOT reset CURRENT_CARD here!
     }
 
-    console.log(`Clicked on: ${dataOfCard.label}`);
+    performCardChecks(dataOfCard);
+}
 
+function performCardChecks(dataOfCard) {
     if (!CARD_STATES.CURRENT_CARD) {
-        // No card selected yet, set CURRENT_CARD
+        // No card selected yet, set current
         CARD_STATES.CURRENT_CARD = dataOfCard;
         return;
     }
@@ -66,8 +70,9 @@ export function onCardClick(dataOfCard) {
     }
 
     if (!CARD_STATES.PREVIOUS_CARD) {
+        // Have a current, but no previous, Increment attempts
         ATTEMPTS++;
-        // Move CURRENT_CARD to PREVIOUS_CARD and set new CURRENT_CARD
+        // Move current to previous and set new current
         CARD_STATES.PREVIOUS_CARD = CARD_STATES.CURRENT_CARD;
         CARD_STATES.CURRENT_CARD = dataOfCard;
     }

@@ -9,6 +9,7 @@ export default async function init() {
 
     instantiateCounterFrame(stage);
     instantiateCardIndicator(stage);
+    instantiateWinLose(stage);
     // instantiateHistory(stage);
 }
 
@@ -75,4 +76,23 @@ function instantiateHistory(stage) {
     historyContainer.x = 750;
     historyContainer.y = 625;
     stage.addChild(historyContainer);
+    STAGE_OBJECTS.historyContainer = historyContainer;
+}
+
+function instantiateWinLose(stage) {
+    const winSprite = new PIXI.Sprite(texturesThatAreLoaded.win);
+    winSprite.label = "winSprite";
+    winSprite.x = 1000;
+    winSprite.y = 625;
+    winSprite.visible = false;
+    stage.addChild(winSprite);
+    STAGE_OBJECTS.winSprite = winSprite;
+
+    const loseSprite = new PIXI.Sprite(texturesThatAreLoaded.lose);
+    loseSprite.label = "loseSprite";
+    loseSprite.x = 1000;
+    loseSprite.y = 625;
+    loseSprite.visible = false;
+    stage.addChild(loseSprite);
+    STAGE_OBJECTS.loseSprite = loseSprite;
 }
