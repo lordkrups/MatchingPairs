@@ -1,6 +1,6 @@
 import { texturesThatAreLoaded } from '../libs/loader/loader.js';
 import { app } from '../libs/renderer/index.js';
-const { Sprite, Container, Text } = PIXI;
+const { Sprite, Text } = PIXI;
 import { STAGE_OBJECTS } from './index.js';
 
 
@@ -15,7 +15,7 @@ export default async function init() {
 
 function instantiateCounterFrame(stage) {
 
-    const attemptCounterFrame = new PIXI.Sprite(texturesThatAreLoaded.bigFrame);
+    const attemptCounterFrame = new Sprite(texturesThatAreLoaded.bigFrame);
     attemptCounterFrame.label = "attemptCounterFrame";
     attemptCounterFrame.x = 750;
     attemptCounterFrame.y = 625;
@@ -61,7 +61,7 @@ function instantiateCounterFrame(stage) {
 }
 
 function instantiateCardIndicator(stage) {
-    const lastCardIndicator = new PIXI.Sprite(texturesThatAreLoaded.lastCard);
+    const lastCardIndicator = new Sprite(texturesThatAreLoaded.lastCard);
     lastCardIndicator.label = "lastCardIndicator";
     lastCardIndicator.x = 750;
     lastCardIndicator.y = 625;
@@ -71,7 +71,7 @@ function instantiateCardIndicator(stage) {
 }
 
 function instantiateHistory(stage) {
-    const historyContainer = new PIXI.Sprite(texturesThatAreLoaded.historyFrame);
+    const historyContainer = new Sprite(texturesThatAreLoaded.historyFrame);
     historyContainer.label = "historyContainer";
     historyContainer.x = 750;
     historyContainer.y = 625;
@@ -80,7 +80,7 @@ function instantiateHistory(stage) {
 }
 
 function instantiateWinLose(stage) {
-    const winSprite = new PIXI.Sprite(texturesThatAreLoaded.win);
+    const winSprite = new Sprite(texturesThatAreLoaded.win);
     winSprite.label = "winSprite";
     winSprite.x = 1000;
     winSprite.y = 625;
@@ -88,7 +88,7 @@ function instantiateWinLose(stage) {
     stage.addChild(winSprite);
     STAGE_OBJECTS.winSprite = winSprite;
 
-    const loseSprite = new PIXI.Sprite(texturesThatAreLoaded.lose);
+    const loseSprite = new Sprite(texturesThatAreLoaded.lose);
     loseSprite.label = "loseSprite";
     loseSprite.x = 1000;
     loseSprite.y = 625;

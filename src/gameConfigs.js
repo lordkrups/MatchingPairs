@@ -19,4 +19,11 @@ export const cardStates = {
     matched: 'matched'
 };
 
-export const maxAttempts = 4;
+export const gameState = {
+    init: 'init',
+    playing: 'playing',
+    won: 'won',
+    lost: 'lost'
+};
+
+export const maxAttempts = 15;

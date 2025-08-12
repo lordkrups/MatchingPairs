@@ -151,3 +151,34 @@ export async function flipCard(dataOfCard, reset = false) {
         clickCallback(dataOfCard);
     }
 }
+
+export function resetCards() {
+    // Flip all cards back to face down and set their texture to be backCard
+    PLAYING_CARDS.forEach(async cardData => {
+        cardData.state = cardStates.faceDown;
+        const cardSprite = STAGE_OBJECTS.cardSelectorContainer.getChildByName(`${cardData.suit}${cardData.num}`);
+
+        if (cardSprite) {
+            cardSprite.interactive = true;
+            cardSprite.alpha = 1;
+
+            await gsap.to(cardSprite, {
+                pixi: { scaleX: 0, scaleY: 1 },
+                duration: 0.25,
+            });
+
+            // Change texture of card
+            cardSprite.texture = texturesThatAreLoaded.backCard;
+
+            await gsap.to(cardSprite, {
+                pixi: { scaleX: -1, scaleY: 1 },
+                duration: 0.25,
+            });
+        }
+
+        // Reset the card data
+        cardData.cardSprite = cardSprite;
+
+
+    });
+}
